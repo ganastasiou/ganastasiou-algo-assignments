@@ -40,11 +40,74 @@ def print_cost_matrix_content(cost_matrix):
         line_to_print = " ".join(formatted_values)
         print(line_to_print)
 
+def print_worker_and_task_potentials(worker_potentials, task_potentials):
+    formatted_worker_potentials = []
+    for worker_potential in worker_potentials:
+        formatted_value = f"{worker_potential:4.2f}"
+        formatted_worker_potentials.append(formatted_value)
+
+    workers_final_str = " ".join(formatted_worker_potentials)
+    print(f"U: [ {workers_final_str} ]")
+
+    formatted_task_potentials = []
+    for task_potential in task_potentials:
+        formatted_value = f"{task_potential:4.2f}"
+        formatted_task_potentials.append(formatted_value)
+    tasks_final_str = " ".join(formatted_task_potentials)
+
+    print(f"V: [ {tasks_final_str} ]")
+
 def print_costs_matrix(cost_matrix):
     print("=== Assignment Problem ===")
     print_cost_matrix_content(cost_matrix)
     print()
 
+def print_initial_potentials(worker_initial_potentials, tasks_initial_potential):
+
+    print("Initial potentials:")
+    formatted_worker_potentials = []
+    for initial_potential in worker_initial_potentials:
+        formatted_value = f"{initial_potential:4.2f}"
+        formatted_worker_potentials.append(formatted_value)
+    final_workers_str = " ".join(formatted_worker_potentials)
+    print(f"U: [ {final_workers_str} ]") # U stands for workers
+
+    formatted_task_potentials = []
+    for initial_potential in tasks_initial_potential:
+        formatted_value = f"{initial_potential:4.2f}"
+        formatted_task_potentials.append(formatted_value)
+    final_tasks_str = " ".join(formatted_task_potentials)
+    print(f"V: [ {final_tasks_str} ]") # V stands for workers
+    print()
+
+def get_initial_potentials_for_workers(cost_matrix):
+    workers_count = len(cost_matrix)
+    tasks_count = len(cost_matrix[0])
+    workers = []
+    for worker_index in range(workers_count):
+        minimum_cost = cost_matrix[worker_index][0]
+        for task_index in range(1, tasks_count):
+            if cost_matrix[worker_index][task_index] < minimum_cost:
+                minimum_cost = cost_matrix[worker_index][task_index]
+        workers.append(minimum_cost)
+    return workers
+
+def get_initial_potentials_for_tasks(tasks_count):
+    tasks = []
+    for _ in range(tasks_count):
+        tasks.append(0.0)
+    return tasks
+
+def get_optimal_matching_with_hungarian_algorithm(cost_matrix, print_verbose=False):
+    workers_count = len(cost_matrix)
+    tasks_count = len(cost_matrix[0])
+
+    # Initialize potentials
+    worker_potentials = get_initial_potentials_for_workers(cost_matrix)
+    task_potentials = get_initial_potentials_for_tasks(len(cost_matrix[0]))
+    if print_verbose:
+        print_initial_potentials(worker_potentials, task_potentials)
+        
 def main():
     parser = initialize_parser()
     parser_arguments = parser.parse_args()
@@ -52,5 +115,7 @@ def main():
     if parser_arguments.verbose:
         print_costs_matrix(cost_matrix)
         
+    optimal_worker_to_task_matching = get_optimal_matching_with_hungarian_algorithm(cost_matrix, parser_arguments.verbose)
+
 if __name__ == '__main__':
     main()
